@@ -1,22 +1,17 @@
 from django.shortcuts import render, redirect
 from .models import UserModel
 from django.contrib.auth import authenticate
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import get_user_model
+from django.contrib import auth
 # Create your views here.
 
 def sign_up(request):
     if request.method == 'POST':
-        username = request.POST.get('username', None)
-        password = request.POST.get('password', None)
-        phone = request.POST.get('phone', None)
-        address = request.POST.get('address', None)
-        
         user_table = UserModel()
-        user_table.username = username
-        user_table.password = password
-        user_table.phone = phone
-        user_table.address = address
+        user_table.username = request.POST.get('username')
+        user_table.set_password(request.POST.get('password'))
+        user_table.phone = request.POST.get('phone')
+        user_table.address = request.POST.get('address')
+
         user_table.save()
 
         return redirect('/login')
@@ -25,6 +20,7 @@ def sign_up(request):
 
 def login(request):
     if request.method == 'POST':
+        print(request.POST)
         username = request.POST['username']
         password = request.POST['password']
         print(username, password)
@@ -32,6 +28,7 @@ def login(request):
 
         print(user)
         if user is not None:
+            auth.login(request, user)
             print('성공')
             return redirect('/home')
         else:
@@ -40,11 +37,11 @@ def login(request):
     else:
         return render(request, 'login.html')
 
-@login_required
 def home(request):
-   if request.method == 'GET':
-        user = request.user.is_authenticated
-        if user:
-            return render(request, 'home.html')
-        else:
-            return redirect('/login')
+    user = request.user.is_authenticated
+    if user:
+        print('user')
+        return render(request, 'home.html')
+    else:
+        print('login')
+        return redirect('/login')
