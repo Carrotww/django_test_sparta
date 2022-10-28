@@ -5,7 +5,7 @@ class ArticleSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     
     def get_user(self, obj):
-        return obj.user.username
+        return obj.user.author
     
     class Meta:
         model = Article

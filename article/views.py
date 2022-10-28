@@ -17,8 +17,9 @@ class ArticleView(APIView):
     
     def post(self, request):
         slz = ArticleCreateSerializer(data=request.data)
+        print(request.data)
         if slz.is_valid():
-            slz.save(user=request.user)
+            slz.save()
             return Response(slz.data, status.HTTP_200_OK)
         else:
             return Response(slz.errors, status=status.HTTP_400_BAD_REQUEST)
