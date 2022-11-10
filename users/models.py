@@ -8,49 +8,38 @@ from django.contrib.auth.models import (
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, author, password=None):
+    def create_user(self, email, password=None):
         """
         Creates and saves a User with the given email, date of
         birth and password.
         """
-        if not author:
+        if not email:
             raise ValueError('Users must have an email address')
 
         user = self.model(
-            author=self.author,
+            email=self.normalize_email(email),
         )
 
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, author, password=None):
-        """
-        Creates and saves a superuser with the given email, date of
-        birth and password.
-        """
-        user = self.create_user(
-            author,
-            password=password,
-        )
-        user.is_admin = True
-        user.save(using=self._db)
-        return user
-
-
 class User(AbstractBaseUser):
-    author = models.TextField(max_length=255, unique=True,)
-    followings = models.ManyToManyField('self', symmetrical=False, related_name='followers', blank=True)
+    email = models.EmailField(
+        verbose_name='email address',
+        max_length=255,
+        unique=True,
+    )
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
 
     objects = UserManager()
 
-    USERNAME_FIELD = 'author'
+    USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
     def __str__(self):
-        return self.author
+        return self.email
 
     def has_perm(self, perm, obj=None):
         "Does the user have a specific permission?"
